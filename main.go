@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
@@ -31,14 +32,27 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello!")
 }
 
-func main() {
+func forms(w http.ResponseWriter, r *http.Request) {
+	// generating HTML output using template package
+	mytemp, err := template.ParseFiles("./static/form.html")
+	if err != nil {
+		return
+	}
+	err = mytemp.Execute(w, nil)
+	if err != nil {
+		return
+	}
+}
 
+func main() {
 	// here we tell the go to checkout the static folder
 	fileserver := http.FileServer(http.Dir("./static"))
 
 	//hanlde function inside the http package
 	// handling the / route
-	http.Handle("/", fileserver)          // send that to fileserver it will server index.html file
+	http.Handle("/", fileserver) // send that to fileserver it will server index.html file
+	http.HandleFunc("/formss", forms)
+
 	http.HandleFunc("/form", formHanlder) // handle the form route
 	http.HandleFunc("/hello", helloHandler)
 
